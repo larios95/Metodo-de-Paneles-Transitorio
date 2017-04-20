@@ -1,0 +1,47 @@
+
+%Se resuelve el sistema de ecuaciones y se obtienen los datos necesarios
+%para posteriores cálculos
+
+
+
+function [L_total,L,sum_gammas,gammas_estela,gammas_paneles]=solverANDpostprocessor(A,RHS,rho,iteracion,gammas_estela,tangentes,U_y_uw,long_paneles,sum_gammas,L_total)
+
+
+
+
+n_paneles=numel(RHS)-1;
+delta_presiones=zeros(n_paneles,1);
+L=zeros(n_paneles,1);
+
+
+gammas=A\RHS;
+
+sum_gammas_anterior=sum_gammas;
+sum_gammas=sum(gammas)-gammas(n_paneles+1);
+dsumgammas_dt=sum_gammas-sum_gammas_anterior;
+gammas_estela(iteracion,1)=gammas(n_paneles+1);
+
+gammas_paneles=gammas(1:n_paneles);
+
+
+
+
+
+for i=1:n_paneles
+    
+    delta_presiones(i,1)=rho*((U_y_uw(i,:)*tangentes(i,:)')*(gammas(i,1)/long_paneles(i,1))+dsumgammas_dt);
+    L(i,1)=delta_presiones(i,1)*long_paneles(i,1)*tangentes(i,1); %POSIBLE FUENTE DE ERROR: que realmente no haya que multiplicar por
+    %tangentes. No estoy 100% seguro de que cos(alpha) sea realmente esa
+    %componente, pero según veo en el libro si que lo es.
+    
+       
+    
+
+
+end
+
+L_total(iteracion,1)=-sum(L);
+
+
+
+end
