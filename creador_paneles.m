@@ -1,0 +1,82 @@
+
+%Discretización del perfil y generación de la malla
+
+
+function [pos_paneles,long_paneles,coord_vor,coord_control,normales,tangentes]=creador_paneles(n_paneles,posiciones_local)
+
+%posiciones=input  tiene que tener ambas componentes del vector que
+% nos da la posición de los puntos del perfil. Nos vendrá dado de una
+% iteracion anterior probablemente posiciones=[x1 z1;x2 z2;....;xn zn]
+
+%TREMENDAMENTE IMPORTANTE: el perfil debe estar definido necesariamente
+%para x comprendidos entre 0 y 1
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%DESCOMPONEMOS EL VECTOR DE POSICIONES EN DOS SUBVECTORES X y Z
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+x_perfil=posiciones_local(:,1);
+z_perfil=posiciones_local(:,2);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%CALCULAR LAS COORDENADAS DE LOS PUNTOS EXTREMOS DE LOS PANELES
+%Para ello se hace uso de interpolación simplemente. Es decir, a partir de
+%los datos que tenemos del perfil aerodinámico,y mediante el uso de una
+%funcion interpoladora ''spline'', deducimos las coordenadas de los puntos
+%de los paneles
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+x_paneles=0:(1/n_paneles):1;%Destáquese aquí la tremenda importancia que tiene que el vector que define
+%al vector esté comprendido entre 0 y 1.
+z_paneles=spline(x_perfil,z_perfil,x_paneles); %por interpolación
+z_paneles(1)=0;z_paneles(n_paneles+1)=0; %para evitar los errores de interpolacion
+
+%Recomponemos el vector de posiciones ahora en uno solo
+
+pos_paneles=[x_paneles; z_paneles]';
+long_paneles=zeros(n_paneles,1);
+
+for i=1:n_paneles
+    
+    long_paneles(i)=sqrt((pos_paneles(i+1,1)-pos_paneles(i,1))^2+(pos_paneles(i+1,2)-pos_paneles(i,2))^2);
+    
+end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%OBTENER LAS COORDENADAS DE LOS PUNTOS DONDE SE HALLAN LOS VÓRTICES Y DE
+%LOS PUNTOS DE CONTROL (collocation points)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+coord_vor=zeros(n_paneles,2);
+coord_control=zeros(n_paneles,2);
+normales=zeros(n_paneles,2);
+tangentes=zeros(n_paneles,2);
+
+for i=1:(n_paneles)
+    
+   T=(pos_paneles(i+1,:)-pos_paneles(i,:));
+   modulo_T=norm(T);
+   t=((pos_paneles(i+1,:)/modulo_T)-(pos_paneles(i,:))/modulo_T);
+
+   coord_vor(i,:)= pos_paneles(i,:)+(1/4)*T; 
+   coord_control(i,:)= pos_paneles(i,:)+(3/4)*T;  
+   normales(i,:)=[-t(1,2),t(1,1)];
+   tangentes(i,:)=t;
+
+  
+        
+end
+
+
+
+
+
+
+
+
+
+
+
