@@ -24,8 +24,8 @@ gammas=A\RHS;
 sum_gammas_anterior=sum_gammas;
 sum_gammas=sum(gammas)-gammas(n_paneles+1);
 dsumgammas_dt=(sum_gammas-sum_gammas_anterior)/dt;
-gammas_estela(iteracion,1)=gammas(n_paneles+1);
 
+gammas_estela(iteracion,1)=gammas(n_paneles+1);
 gammas_paneles=gammas(1:n_paneles);
 
 coord_local_estela=global_a_local(posiciones_estela_global,x_oo,z_oo,theta_inst);
@@ -48,8 +48,8 @@ if iteracion==1
         
         [u,w]=v_total(x_c,z_c,u_inf,gammas_paneles,coord_vor,gammas_estela,coord_local_estela,iteracion);
         u1=(matriz_giro*(u_inf'))';
-        u_inst(k,1)=u+u1(1);%OK
-        w_inst(k,1)=w+u1(2);%OK
+        u_inst(k,1)=u+u_inf(1);%OK
+        w_inst(k,1)=w+u_inf(2);%OK
         
     end
     
@@ -64,8 +64,9 @@ elseif iteracion>1
         x_c=coord_vor(k,1);
         z_c=coord_vor(k,2);
         [u,w]=v_total(x_c,z_c,u_inf,gammas_paneles,coord_vor,gammas_estela,coord_local_estela,iteracion);
-        u_inst(k,1)=u+u_inf(1);%OK
-        w_inst(k,1)=w-u_inf(2);%OK
+        u1=(matriz_giro*(u_inf'))';
+        u_inst(k,1)=u+u1(1);%OK
+        w_inst(k,1)=w+u1(2);%OK
         dgammas_dt=sum(gammas_paneles(1:k)-gammas_paneles_ant(1:k))/dt;
         
         %est=rho*u_ant(k,1)*gammas_paneles_ant(k,1)
@@ -80,17 +81,17 @@ elseif iteracion>1
         
 
         
-        L(k,1)=rho*u_ant(k,1)*gammas_paneles_ant(k,1)+rho*long_paneles(k,1)*cosd(alphad)*dgammas_dt;%%si le restamos lo transitorio sale mas o menos
+%         L(k,1)=rho*u_ant(k,1)*gammas_paneles_ant(k,1)+rho*long_paneles(k,1)*cosd(alphad)*dgammas_dt;%%si le restamos lo transitorio sale mas o menos
         
-%          delta_presiones(k,1)=rho*(([u_ant(k,1),w_ant(k,1)])*tangentes(k,:)')*(gammas_paneles_ant(k,1)/long_paneles(k,1))+dgammas_dt;
-%          L(k,1)=delta_presiones(k,1)*long_paneles(k,1)*tangentes(k,1);
+         delta_presiones(k,1)=rho*(([u_ant(k,1),w_ant(k,1)])*tangentes(k,:)')*(gammas_paneles_ant(k,1)/long_paneles(k,1))+dgammas_dt;
+         L(k,1)=delta_presiones(k,1)*long_paneles(k,1)*tangentes(k,1);
 
 
 
-%ORIGINAL
-%          delta_presiones(k,1)=rho*(([u_inst(k,1),w_inst(k,1)])*tangentes(k,:)')*(gammas(k,1)/long_paneles(k,1))+dsumgammas_dt;
-%          L(k,1)=delta_presiones(k,1)*long_paneles(k,1)*tangentes(k,1);
-        
+% % %ORIGINAL
+% %          delta_presiones(k,1)=rho*(([u_inst(k,1),w_inst(k,1)])*tangentes(k,:)')*(gammas(k,1)/long_paneles(k,1))+dsumgammas_dt;
+% %          L(k,1)=delta_presiones(k,1)*long_paneles(k,1)*tangentes(k,1);
+% %         
         
         
         
