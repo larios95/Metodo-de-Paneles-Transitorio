@@ -41,7 +41,7 @@ plot(tiempo(1:limite),Cl_total_3(1:limite),'y','DisplayName','N_{paneles} = 6')
 comprobacion(:,1)=L_teorica;comprobacion(:,2)=L_total_3;
 
 
-
+grid on
 legend('show')
 legend('Location','southeast')
 title('Placa plana en régimen transitorio. Aceleración instantánea')
